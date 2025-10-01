@@ -1,0 +1,37 @@
+name: 'Policy Linter'
+description: 'Validate agent-treasury policy JSON against schema and safety rules'
+inputs:
+  policy:
+    description: 'Path to the policy JSON file'
+    required: true
+  report:
+    description: 'Path to write the JSON report'
+    required: true
+  strict:
+    description: 'Treat warnings as errors (true/false)'
+    required: false
+    default: 'false'
+runs:
+  using: 'composite'
+  steps:
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - name: Install dependencies
+      shell: bash
+      run: npm ci
+    - name: Run linter
+      shell: bash
+      env:
+        POLICY: ${{ inputs.policy }}
+        REPORT: ${{ inputs.report }}
+        STRICT: ${{ inputs.strict }}
+      run: |
+        set -euo pipefail
+        CMD=(node --loader ts-node/esm src/cli.ts "$POLICY" --report "$REPORT")
+        if [[ "${STRICT}" == "true" ]]; then
+          CMD+=(--strict)
+        fi
+        echo "Running: ${CMD[*]}"
+        "${CMD[@]}"
