@@ -1,0 +1,32 @@
+name: CI (Policy Linter Action)
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  test-action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        run: npm ci
+      - name: Run action on good policy
+        uses: ./.github/actions/policy-linter
+        with:
+          policy: samples/policy.good.json
+          report: report.good.json
+          strict: 'false'
+      - name: Run action on bad policy (strict)
+        uses: ./.github/actions/policy-linter
+        with:
+          policy: samples/policy.bad.json
+          report: report.bad.json
+          strict: 'true'
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: policy-linter-action-reports
+          path: |
+            report.good.json
+            report.bad.json
