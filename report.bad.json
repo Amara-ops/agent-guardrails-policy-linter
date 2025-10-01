@@ -1,0 +1,66 @@
+{
+  "ok": false,
+  "errors": [
+    {
+      "code": "SCHEMA",
+      "msg": "/caps/call_rate_cap must match pattern \"^[0-9]+/hour$\""
+    },
+    {
+      "code": "SCHEMA",
+      "msg": "/calls/allowlist must NOT have fewer than 1 items"
+    },
+    {
+      "code": "SCHEMA",
+      "msg": "/approvals/quorum must be >= 2"
+    },
+    {
+      "code": "LOGGING_DISABLED",
+      "msg": "meta.logging must be true",
+      "path": "meta.logging"
+    },
+    {
+      "code": "CAPS_H1_GT_D1",
+      "msg": "caps.max_outflow_h1 must be <= caps.max_outflow_d1",
+      "path": "caps.max_outflow_h1"
+    },
+    {
+      "code": "RATE_CAP_FORMAT",
+      "msg": "caps.call_rate_cap must be \"N/hour\"",
+      "path": "caps.call_rate_cap"
+    },
+    {
+      "code": "ALLOWLIST_EMPTY",
+      "msg": "calls.allowlist must include at least one [chainId, addr, selector] triple",
+      "path": "calls.allowlist"
+    },
+    {
+      "code": "QUORUM_TOO_LOW",
+      "msg": "approvals.quorum must be >= 2",
+      "path": "approvals.quorum"
+    }
+  ],
+  "warnings": [
+    {
+      "code": "ANOMALY_BLOCK_DISABLED",
+      "msg": "Enable caps.anomaly_block.enabled",
+      "path": "caps.anomaly_block.enabled"
+    },
+    {
+      "code": "TIMELOCK_MISSING_OR_LOW",
+      "msg": "approvals.timelock_hours should be >= 24",
+      "path": "approvals.timelock_hours"
+    },
+    {
+      "code": "PAUSE_DISABLED",
+      "msg": "controls.pause.enabled should be true",
+      "path": "controls.pause.enabled"
+    }
+  ],
+  "suggestions": [
+    {
+      "code": "SUGGEST_DENOMINATION",
+      "msg": "Use BASE_USDC if operating primarily on Base",
+      "path": "meta.denomination"
+    }
+  ]
+}
