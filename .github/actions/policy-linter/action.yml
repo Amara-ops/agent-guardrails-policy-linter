@@ -21,6 +21,9 @@ runs:
     - name: Install dependencies
       shell: bash
       run: npm ci
+    - name: Build CLI
+      shell: bash
+      run: npm run build
     - name: Run linter
       shell: bash
       env:
@@ -29,7 +32,7 @@ runs:
         STRICT: ${{ inputs.strict }}
       run: |
         set -euo pipefail
-        CMD=(node --loader ts-node/esm src/cli.ts "$POLICY" --report "$REPORT")
+        CMD=(node dist/cli.js "$POLICY" --report "$REPORT")
         if [[ "${STRICT}" == "true" ]]; then
           CMD+=(--strict)
         fi
