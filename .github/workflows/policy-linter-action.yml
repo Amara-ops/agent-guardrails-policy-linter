@@ -23,13 +23,15 @@ jobs:
           policy: samples/policy.good.json
           report: report.good.json
           strict: 'false'
-      - name: Run action on bad policy (strict)
+      - name: Run action on bad policy (strict; expect non-zero)
         uses: ./.github/actions/policy-linter
         with:
           policy: samples/policy.bad.json
           report: report.bad.json
           strict: 'true'
+        continue-on-error: true
       - name: Upload reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: policy-linter-action-reports
