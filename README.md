@@ -24,7 +24,9 @@ Usage examples
 - node dist/cli.js samples/policy.bad.json --strict --report report.bad.json
 
 GitHub Actions usage
-- In this repo (composite action):
+
+In this repo (composite action):
+```yaml
   jobs:
     lint:
       runs-on: ubuntu-latest
@@ -35,8 +37,10 @@ GitHub Actions usage
             policy: samples/policy.good.json
             report: report.good.json
             strict: 'false'
+```
 
-- From another repo (reference subdir action):
+From another repo (reference subdir action):
+```yaml
   jobs:
     lint:
       runs-on: ubuntu-latest
@@ -47,6 +51,7 @@ GitHub Actions usage
             policy: path/to/policy.json
             report: policy.report.json
             strict: 'true'
+```
 
 Notes
 - The composite action builds the CLI first, then runs node dist/cli.js.
