@@ -1,4 +1,4 @@
-name: Policy Lint
+name: Policy Lint (build + run)
 
 on:
   pull_request:
@@ -21,10 +21,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run Policy Linter (strict)
+      - name: Build CLI
+        run: npm run build
+
+      - name: Run Policy Linter (good)
+        run: node dist/cli.js samples/policy.good.json --report report.good.json
+
+      - name: Run Policy Linter (bad, strict; expect non-zero)
         run: |
-          npx ts-node --esm src/cli.ts samples/policy.good.json --report report.good.json
-          npx ts-node --esm src/cli.ts samples/policy.bad.json --strict --report report.bad.json || true
+          set +e
+          node dist/cli.js samples/policy.bad.json --strict --report report.bad.json
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+        id: bad
 
       - name: Upload reports
         uses: actions/upload-artifact@v4
