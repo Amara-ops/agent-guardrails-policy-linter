@@ -28,13 +28,12 @@ jobs:
         run: node dist/cli.js samples/policy.good.json --report report.good.json
 
       - name: Run Policy Linter (bad, strict; expect non-zero)
-        run: |
-          set +e
-          node dist/cli.js samples/policy.bad.json --strict --report report.bad.json
-          echo "exit_code=$?" >> $GITHUB_OUTPUT
+        run: node dist/cli.js samples/policy.bad.json --strict --report report.bad.json
+        continue-on-error: true
         id: bad
 
       - name: Upload reports
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: policy-linter-reports
