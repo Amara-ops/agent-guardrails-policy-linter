@@ -2,7 +2,19 @@ name: CI (Policy Linter composite action)
 
 on:
   pull_request:
+    paths:
+          - '.github/actions/policy-linter/**'
+          - '.github/workflows/policy-linter-action.yml'
+          - 'src/**'
+          - 'schema.json'
+          - 'samples/**'
   push:
+    paths:
+        - '.github/actions/policy-linter/**'
+        - '.github/workflows/policy-linter-action.yml'
+        - 'src/**'
+        - 'schema.json'
+        - 'samples/**'
 
 jobs:
   test-action:
