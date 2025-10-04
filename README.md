@@ -1,29 +1,33 @@
-Policy Linter — v0
+ # Agent Treasury Policy Linter — v0
 
 [![Policy Lint](https://github.com/Amara-ops/agent-guardrails-policy-linter/actions/workflows/policy-lint.yml/badge.svg)](https://github.com/Amara-ops/agent-guardrails-policy-linter/actions/workflows/policy-lint.yml)
 [![Composite Action CI](https://github.com/Amara-ops/agent-guardrails-policy-linter/actions/workflows/policy-linter-action.yml/badge.svg)](https://github.com/Amara-ops/agent-guardrails-policy-linter/actions/workflows/policy-linter-action.yml)
 
-Purpose
-- Validate agent-treasury policy JSON against schema + safety rules (caps, allowlists, timelocks, quorum, logging).
-- Output machine-readable report with errors/warnings/suggestions. OSS, MIT.
+A TypeScript CLI + GitHub Action that validates agent-treasury policy JSON against a schema and safety rules (caps, selector+chainId allowlists, timelock, quorum, pause, logging). Outputs machine-readable actionable JSON reports with errors/warnings/suggestions to help teams tighten policy before deployment.
 
-Scope v0
+## Problem
+Teams ship agent treasuries with missing/weak guardrails. Misconfigurations (no selector allowlists, high spend caps, no timelock) increase exploit and runaway-spend risk.
+
+## Solution
+OSS linter that enforces a pragmatic baseline. Includes JSON Schema (2020-12), custom rules, samples, Jest tests, and a CI Action. Reduces policy risk for agent projects; aligns with programmable wallet policies. Encourages selector+chainId allowlists and sane caps.
+
+## Scope v0
 - Input: policy.json (keys: meta, caps, calls, approvals, controls).
 - Checks:
   1) Schema validation (2020-12 JSON Schema in schema.json).
   2) Rules: units consistent with meta.denomination; caps relations; call-rate format; allowlist triples; quorum>=2; timelock>=0; pause/logging enabled.
 - Output: exit code (0=pass, 1=fail), report.json detailing findings.
 
-CLI
+## CLI
 - Build: npm run build; then node dist/cli.js policy.json --report report.json
 - Dev: node --loader ts-node/esm src/cli.ts policy.json --report report.json
 - Flags: --report out.json, --strict (treat warnings as errors), --no-color.
 
-Usage examples
+## Usage examples
 - node dist/cli.js samples/policy.good.json --report report.good.json
 - node dist/cli.js samples/policy.bad.json --strict --report report.bad.json
 
-GitHub Actions usage
+## GitHub Actions usage
 
 In this repo (composite action):
 ```yaml
@@ -53,19 +57,19 @@ From another repo (reference subdir action):
             strict: 'true'
 ```
 
-Notes
+## Notes
 - The composite action builds the CLI first, then runs node dist/cli.js.
 - For negative examples (bad policy with --strict), set continue-on-error: true in your workflow step and still upload artifacts.
 
-Reports (generated)
+## Reports (generated)
 - report.good.json
 - report.bad.json
 
-CI example files
+## CI example files
 - .github/workflows/policy-lint.yml
 - .github/workflows/policy-linter-action.yml
 
-Roadmap
+## Roadmap
 - v0 complete: TS CLI + schema (2020-12 Ajv) + rules + Jest tests + sample reports + CI example + composite Action.
 - v0.1: Standalone GitHub Action repo (root action.yml) + badge; per-target rate caps; anomaly heuristics tune-up.
 - v0.2: Minimal web UI; multi-chain denominations; SARIF export.
