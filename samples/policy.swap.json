@@ -1,0 +1,7 @@
+{
+  "meta": { "denomination": "BASE_USDC", "logging": true },
+  "caps": { "max_outflow_h1": 100, "max_outflow_d1": 300, "call_rate_cap": "60/hour" },
+  "calls": { "allowlist": [ [8453, "0xE592427A0AEce92De3Edee1F18E0157C05861564", "0x04e45aaf"] ] },
+  "approvals": { "quorum": 2, "timelock_hours": 12 },
+  "controls": { "pause": { "enabled": true } }
+}
