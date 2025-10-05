@@ -14,7 +14,14 @@ OSS linter that enforces a pragmatic baseline. Includes JSON Schema (2020-12), c
 ## What’s new (v0.1 WIP)
 - Guardrail Cookbook (recipes + snippets): GUARDRAIL_COOKBOOK.md
 - Rules roadmap with new warnings: rules.md (v0.1 additions marked)
-- Planned: SARIF export, per-function rate caps, anomaly heuristics tune-up
+- New optional fields supported (warnings-first):
+  - calls.denylist
+  - approvals.policy_edit_timelock_hours
+  - intent_filters.{max_slippage_bps,max_price_dev_bps}
+  - caps.per_function {selector: "N/hour"}
+  - caps.per_target_d1 {address: number}
+- Samples: minimal (good/bad/swap/approval/escalation) + full.preview.json (uses optional fields)
+- Planned: SARIF export, minimal web UI, multi-chain denominations, anomaly heuristics tune-up
 
 ## Scope v0
 - Input: policy.json (keys: meta, caps, calls, approvals, controls).
@@ -31,6 +38,14 @@ OSS linter that enforces a pragmatic baseline. Includes JSON Schema (2020-12), c
 ## Usage examples
 - node dist/cli.js samples/policy.good.json --report report.good.json
 - node dist/cli.js samples/policy.bad.json --strict --report report.bad.json
+- node dist/cli.js samples/policy.full.preview.json --report report.full.json
+
+Notes on sample warnings
+- Some samples intentionally emit warnings to educate controls:
+  - approval.json, escalation.json: ANOMALY_BLOCK_DISABLED
+  - swap.json: ANOMALY_BLOCK_DISABLED, TIMELOCK_MISSING_OR_LOW, INTENT_SLIPPAGE_MISSING_OR_LOOSE
+- Behavior: OK (non-strict) still passes; --strict will fail on warnings.
+- Make them “clean” by setting caps.anomaly_block.enabled=true, approvals.timelock_hours>=24, and intent_filters with reasonable bounds (e.g., max_slippage_bps<=1000, max_price_dev_bps=200).
 
 ## GitHub Actions usage
 
@@ -69,6 +84,7 @@ jobs:
 ## Reports (generated)
 - report.good.json
 - report.bad.json
+- report.full.json
 
 ## CI example files
 - .github/workflows/policy-lint.yml
@@ -76,7 +92,7 @@ jobs:
 
 ## Roadmap
 - v0 complete: TS CLI + schema (2020-12 Ajv) + rules + Jest tests + sample reports + CI example + composite Action.
-- v0.1 WIP: Cookbook + rule warnings; Standalone GitHub Action repo (root action.yml + badge), plan SARIF + per-function rate caps; anomaly heuristics tune-up.
+- v0.1 WIP: Cookbook + rule warnings; optional fields (denylist, policy-edit timelock, intent filters, per-function/per-target caps); Standalone GitHub Action repo (root action.yml + badge), planned SARIF + anomaly heuristics tune-up.
 - v0.2: Minimal web UI; multi-chain denominations; SARIF export.
 
 License: MIT
