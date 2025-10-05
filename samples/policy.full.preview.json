@@ -1,0 +1,23 @@
+{
+  "meta": { "denomination": "BASE_USDC", "logging": true },
+  "caps": {
+    "max_outflow_h1": 100,
+    "max_outflow_d1": 500,
+    "call_rate_cap": "60/hour",
+    "anomaly_block": { "enabled": true },
+    "per_function": { "0x04e45aaf": "120/hour", "0xa9059cbb": "240/hour" },
+    "per_target_d1": { "0xE592427A0AEce92De3Edee1F18E0157C05861564": 300 }
+  },
+  "calls": {
+    "allowlist": [
+      [8453, "0xE592427A0AEce92De3Edee1F18E0157C05861564", "0x04e45aaf"],
+      [8453, "0x833589fCD6edB6E08f4c7c32D4f71B54B5DCaB2D", "0xa9059cbb"]
+    ],
+    "denylist": [
+      [8453, "0xE592427A0AEce92De3Edee1F18E0157C05861564", "0x5ae401dc"]
+    ]
+  },
+  "approvals": { "quorum": 2, "timelock_hours": 24, "policy_edit_timelock_hours": 24 },
+  "controls": { "pause": { "enabled": true } },
+  "intent_filters": { "max_slippage_bps": 100, "max_price_dev_bps": 200 }
+}
