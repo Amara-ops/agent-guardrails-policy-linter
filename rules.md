@@ -1,21 +1,27 @@
-Policy Linter — Rules (v0)
+Rules (v0.1 work-in-progress additions highlighted)
 
-Hard errors
-- DENOMINATION_MISSING/INVALID: meta.denomination not in {BASE_USDC, ETH}.
-- LOGGING_DISABLED: meta.logging != true.
-- CAPS_ZERO_OR_NEG: caps.max_outflow_h1/d1 <= 0.
-- CAPS_H1_GT_D1: caps.max_outflow_h1 > caps.max_outflow_d1.
-- RATE_CAP_FORMAT: caps.call_rate_cap not N/hour.
-- ALLOWLIST_EMPTY/BAD_TRIPLE: calls.allowlist missing or not [chainId,int],[addr,0x40],[selector,0x8].
-- QUORUM_TOO_LOW: approvals.quorum < 2.
+Existing (v0)
+- Schema (2020-12): required keys, types, enums; meta.denomination present; logging boolean.
+- Caps: max_outflow_d1 ≥ max_outflow_h1; call_rate_cap matches N/period (e.g., 60/hour).
+- Calls: allowlist is array of [chainId, address, selector]; not empty in strict.
+- Approvals: quorum ≥ 2; timelock_hours ≥ 0.
+- Controls: pause.enabled boolean true/false.
 
-Warnings
-- TIMELOCK_MISSING_OR_LOW: approvals.timelock_hours < 24.
-- ANOMALY_BLOCK_DISABLED: caps.anomaly_block.enabled != true.
-- PAUSE_DISABLED: controls.pause.enabled != true.
-- RATE_CAP_HIGH: parsed N > 1000.
+New warnings (v0.1 WIP)
+- ALLOWLIST_EMPTY: allowlist empty or missing (warn; error in --strict).
+- GENERIC_EXECUTE_SELECTOR: presence of generic execute/multicall selectors.
+- UNBOUNDED_APPROVAL_PATTERN: selectors consistent with unlimited approvals.
+- HIGH_CAP_WITH_LOW_GOV: caps above thresholds with quorum <2 or timelock <12h.
+- RATE_CAP_SUSPECT: call_rate_cap too high relative to spend caps.
+- DENOM_MISMATCH_HINT: denomination vs cap semantics look inconsistent.
 
-Suggestions
-- SUGGEST_DENOMINATION: Explicitly set meta.denomination to BASE_USDC if using Base.
-- SUGGEST_SELECTOR_REQUIREMENT: Require selector+chainId for high-risk targets first.
-- SUGGEST_DIFF: Produce a minimal diff proposal when tightening caps.
+Planned (v0.2)
+- SARIF_EXPORT: map findings to SARIF static analysis format.
+- PER_FUNCTION_RATE_CAPS: validate caps.per_function overrides when present.
+- MULTICHAIN_DENOMINATIONS: validate meta.denomination as map {chainId: unit}.
+- SUPPRESSIONS: support a suppress array with rule + justification to adjust severity.
+
+Severity levels
+- error: blocks merge in strict; fail exit code.
+- warning: prompts manual review; does not block unless --strict.
+- suggestion: educational hint; never blocks.
