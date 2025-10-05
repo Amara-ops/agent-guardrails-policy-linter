@@ -1,4 +1,4 @@
- # Agent Treasury Policy Linter — v0
+# Agent Treasury Policy Linter — v0.1 WIP
 
 [![Policy Lint](https://github.com/Amara-ops/agent-guardrails-policy-linter/actions/workflows/policy-lint.yml/badge.svg)](https://github.com/Amara-ops/agent-guardrails-policy-linter/actions/workflows/policy-lint.yml)
 [![Composite Action CI](https://github.com/Amara-ops/agent-guardrails-policy-linter/actions/workflows/policy-linter-action.yml/badge.svg)](https://github.com/Amara-ops/agent-guardrails-policy-linter/actions/workflows/policy-linter-action.yml)
@@ -10,6 +10,11 @@ Teams ship agent treasuries with missing/weak guardrails. Misconfigurations (no 
 
 ## Solution
 OSS linter that enforces a pragmatic baseline. Includes JSON Schema (2020-12), custom rules, samples, Jest tests, and a CI Action. Reduces policy risk for agent projects; aligns with programmable wallet policies. Encourages selector+chainId allowlists and sane caps.
+
+## What’s new (v0.1 WIP)
+- Guardrail Cookbook (recipes + snippets): GUARDRAIL_COOKBOOK.md
+- Rules roadmap with new warnings: rules.md (v0.1 additions marked)
+- Planned: SARIF export, per-function rate caps, anomaly heuristics tune-up
 
 ## Scope v0
 - Input: policy.json (keys: meta, caps, calls, approvals, controls).
@@ -31,30 +36,30 @@ OSS linter that enforces a pragmatic baseline. Includes JSON Schema (2020-12), c
 
 In this repo (composite action):
 ```yaml
-  jobs:
-    lint:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v4
-        - uses: ./.github/actions/policy-linter
-          with:
-            policy: samples/policy.good.json
-            report: report.good.json
-            strict: 'false'
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/policy-linter
+        with:
+          policy: samples/policy.good.json
+          report: report.good.json
+          strict: 'false'
 ```
 
 From another repo (reference subdir action):
 ```yaml
-  jobs:
-    lint:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v4
-        - uses: Amara-ops/agent-guardrails-policy-linter/.github/actions/policy-linter@main
-          with:
-            policy: path/to/policy.json
-            report: policy.report.json
-            strict: 'true'
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Amara-ops/agent-guardrails-policy-linter/.github/actions/policy-linter@main
+        with:
+          policy: path/to/policy.json
+          report: policy.report.json
+          strict: 'true'
 ```
 
 ## Notes
@@ -71,7 +76,7 @@ From another repo (reference subdir action):
 
 ## Roadmap
 - v0 complete: TS CLI + schema (2020-12 Ajv) + rules + Jest tests + sample reports + CI example + composite Action.
-- v0.1: Standalone GitHub Action repo (root action.yml) + badge; per-target rate caps; anomaly heuristics tune-up.
+- v0.1 WIP: Cookbook + rule warnings; Standalone GitHub Action repo (root action.yml + badge), plan SARIF + per-function rate caps; anomaly heuristics tune-up.
 - v0.2: Minimal web UI; multi-chain denominations; SARIF export.
 
 License: MIT
