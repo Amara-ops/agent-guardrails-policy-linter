@@ -11,6 +11,12 @@ inputs:
     description: 'Treat warnings as errors (true/false)'
     required: false
     default: 'false'
+  sarif:
+    description: 'Optional path to write SARIF output (for GitHub Code Scanning)'
+    required: false
+  artifact:
+    description: 'Optional artifact path to anchor SARIF findings (defaults to policy path)'
+    required: false
 runs:
   using: 'composite'
   steps:
@@ -30,11 +36,15 @@ runs:
         POLICY: ${{ inputs.policy }}
         REPORT: ${{ inputs.report }}
         STRICT: ${{ inputs.strict }}
+        SARIF: ${{ inputs.sarif }}
+        ARTIFACT: ${{ inputs.artifact }}
       run: |
         set -euo pipefail
         CMD=(node dist/cli.js "$POLICY" --report "$REPORT")
-        if [[ "${STRICT}" == "true" ]]; then
-          CMD+=(--strict)
+        if [[ -n "${SARIF}" ]]; then
+          CMD+=(--sarif "$SARIF")
+          if [[ -n "${ARTIFACT}" ]]; then CMD+=(--artifact "$ARTIFACT"); fi
         fi
+        if [[ "${STRICT}" == "true" ]]; then CMD+=(--strict); fi
         echo "Running: ${CMD[*]}"
         "${CMD[@]}"
