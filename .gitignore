@@ -1,0 +1,20 @@
+# Node
+node_modules/
+.npm
+npm-debug.log*
+
+# Build outputs
+/dist/
+coverage/
+*.tsbuildinfo
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Reports/artifacts (do not commit)
+report.*.json
+*.sarif
+*.tgz
