@@ -5,6 +5,14 @@
 (function(){
   const RAW_BASE = 'https://raw.githubusercontent.com/Amara-ops/agent-guardrails-policy-linter/main/';
 
+  function getAjvCtor(){
+    const AjvCtor = window.Ajv || window.ajv || window.Ajv2020 || window.ajv2020;
+    if (!AjvCtor) {
+      throw new Error('Ajv UMD not loaded');
+    }
+    return AjvCtor;
+  }
+
   function byId(id){ return document.getElementById(id); }
 
   async function fetchJSONFallback(paths){
@@ -13,7 +21,6 @@
       try {
         const res = await fetch(path, { cache: 'no-store' });
         if (!res.ok) throw new Error('HTTP ' + res.status + ' for ' + path);
-        // Some servers mis-set MIME; still parse as JSON
         const text = await res.text();
         return JSON.parse(text);
       } catch (e){ lastErr = e; }
@@ -52,7 +59,8 @@
     try { policy = JSON.parse(jsonText); }
     catch (e) { return { ok: false, parseError: String(e) }; }
     const schema = await fetchJSONFallback(schemaPaths());
-    const ajv = new Ajv({ strict: false, allErrors: true });
+    const AjvCtor = getAjvCtor();
+    const ajv = new AjvCtor({ strict: false, allErrors: true });
     const validate = ajv.compile(schema);
     validate(policy);
     return normalizeReport(validate.errors);
@@ -72,45 +80,47 @@
     setTimeout(() => URL.revokeObjectURL(url), 0);
   }
 
-  // Wire UI
-  const policyInput = byId('policyInput');
-  const reportPre = byId('report');
-  const validateBtn = byId('validateBtn');
-  const downloadBtn = byId('downloadBtn');
-  const sampleGoodBtn = byId('sampleGood');
-  const sampleFullBtn = byId('sampleFull');
+  // Wire UI once DOM ready
+  document.addEventListener('DOMContentLoaded', function(){
+    const policyInput = byId('policyInput');
+    const reportPre = byId('report');
+    const validateBtn = byId('validateBtn');
+    const downloadBtn = byId('downloadBtn');
+    const sampleGoodBtn = byId('sampleGood');
+    const sampleFullBtn = byId('sampleFull');
 
-  sampleGoodBtn.addEventListener('click', async () => {
-    reportPre.textContent = '';
-    try {
-      const s = await loadSample('policy.good.json');
-      setSample(policyInput, s);
-    } catch (e) {
-      reportPre.textContent = 'Failed to load sample: policy.good.json — ' + String(e);
-    }
-  });
+    sampleGoodBtn.addEventListener('click', async () => {
+      reportPre.textContent = '';
+      try {
+        const s = await loadSample('policy.good.json');
+        setSample(policyInput, s);
+      } catch (e) {
+        reportPre.textContent = 'Failed to load sample: policy.good.json — ' + String(e);
+      }
+    });
 
-  sampleFullBtn.addEventListener('click', async () => {
-    reportPre.textContent = '';
-    try {
-      const s = await loadSample('policy.full.preview.json');
-      setSample(policyInput, s);
-    } catch (e) {
-      reportPre.textContent = 'Failed to load sample: policy.full.preview.json — ' + String(e);
-    }
-  });
+    sampleFullBtn.addEventListener('click', async () => {
+      reportPre.textContent = '';
+      try {
+        const s = await loadSample('policy.full.preview.json');
+        setSample(policyInput, s);
+      } catch (e) {
+        reportPre.textContent = 'Failed to load sample: policy.full.preview.json — ' + String(e);
+      }
+    });
 
-  validateBtn.addEventListener('click', async () => {
-    reportPre.textContent = 'Validating...';
-    try {
-      const res = await validatePolicy(policyInput.value);
-      const out = JSON.stringify(res, null, 2);
-      reportPre.textContent = out;
-      downloadBtn.disabled = !out;
-      downloadBtn.onclick = () => download('policy.report.json', out);
-    } catch (e) {
-      reportPre.textContent = 'Validation failed: ' + String(e);
-      downloadBtn.disabled = true;
-    }
+    validateBtn.addEventListener('click', async () => {
+      reportPre.textContent = 'Validating...';
+      try {
+        const res = await validatePolicy(policyInput.value);
+        const out = JSON.stringify(res, null, 2);
+        reportPre.textContent = out;
+        downloadBtn.disabled = !out;
+        downloadBtn.onclick = () => download('policy.report.json', out);
+      } catch (e) {
+        reportPre.textContent = 'Validation failed: ' + String(e);
+        downloadBtn.disabled = true;
+      }
+    });
   });
 })();
