@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Agent Treasury Policy Linter (Web)</title>
   <link rel="stylesheet" href="./style.css" />
+  <!-- Load Ajv UMD before app.js (classic script to avoid module MIME issues) -->
+  <script src="https://cdn.jsdelivr.net/npm/ajv@8.12.0/dist/ajv2020.min.js"></script>
+  <script>window.Ajv = Ajv;</script>
 </head>
 <body>
   <header>
@@ -15,7 +18,6 @@
       ·
       <a href="https://github.com/Amara-ops/policy-linter-action">GitHub Action</a>
     </nav>
-    <div class="hint">Tip: This page can be opened directly from disk. The app script, schema, and samples load from raw.githubusercontent.com over HTTPS.</div>
   </header>
 
   <main>
@@ -28,7 +30,7 @@
         <button id="validateBtn">Validate</button>
         <button id="downloadBtn" disabled>Download report.json</button>
       </div>
-      <div class="hint">Schema is loaded from the repo. This UI runs entirely in your browser; no data is uploaded.</div>
+      <div class="hint">Schema and samples are fetched from the repo over HTTPS. This UI runs entirely in your browser.</div>
     </section>
 
     <section class="output">
@@ -41,7 +43,7 @@
     <small>Disclaimer: This web UI approximates the CLI output. Use the CLI/Action in CI for production policy checks. No data leaves your browser.</small>
   </footer>
 
-  <!-- Load the app script from HTTPS to avoid file:// module/CORS restrictions -->
-  <script type="module" src="https://raw.githubusercontent.com/Amara-ops/agent-guardrails-policy-linter/main/docs/app.js"></script>
+  <!-- Classic script to avoid module MIME/CORS issues with file:// or simple servers -->
+  <script src="./app.js"></script>
 </body>
 </html>
