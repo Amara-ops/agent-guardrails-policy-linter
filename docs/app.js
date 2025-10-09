@@ -1,120 +1,13 @@
 import Ajv from 'https://cdn.jsdelivr.net/npm/ajv@8.12.0/dist/ajv2020.min.js';
 
-// Inline fallbacks so the UI still works when opened via file:// (fetch() often fails under file URLs)
-const inlineSchema = {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Agent Treasury Policy",
-  "type": "object",
-  "required": ["meta", "caps", "calls", "approvals", "controls"],
-  "properties": {
-    "meta": {
-      "type": "object",
-      "required": ["denomination", "logging"],
-      "properties": {
-        "denomination": { "type": "string", "enum": ["BASE_USDC", "ETH"] },
-        "logging": { "type": "boolean" }
-      }
-    },
-    "caps": {
-      "type": "object",
-      "required": ["max_outflow_h1", "max_outflow_d1", "call_rate_cap"],
-      "properties": {
-        "max_outflow_h1": { "type": "number", "exclusiveMinimum": 0 },
-        "max_outflow_d1": { "type": "number", "exclusiveMinimum": 0 },
-        "call_rate_cap": { "type": "string", "pattern": "^[0-9]+/hour$" },
-        "anomaly_block": { "type": "object", "properties": { "enabled": { "type": "boolean" } } },
-        "per_function": {
-          "type": "object",
-          "patternProperties": {
-            "^0x[0-9a-fA-F]{8}$": { "type": "string", "pattern": "^[0-9]+/hour$" }
-          },
-          "additionalProperties": false
-        },
-        "per_target_d1": {
-          "type": "object",
-          "patternProperties": {
-            "^0x[0-9a-fA-F]{40}$": { "type": "number", "exclusiveMinimum": 0 }
-          },
-          "additionalProperties": false
-        }
-      }
-    },
-    "calls": {
-      "type": "object",
-      "required": ["allowlist"],
-      "properties": {
-        "allowlist": {
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "type": "array",
-            "prefixItems": [
-              { "type": "integer", "minimum": 1 },
-              { "type": "string", "pattern": "^0x[0-9a-fA-F]{40}$" },
-              { "type": "string", "pattern": "^0x[0-9a-fA-F]{8}$" }
-            ],
-            "items": false,
-            "minItems": 3,
-            "maxItems": 3
-          }
-        },
-        "denylist": {
-          "type": "array",
-          "items": {
-            "type": "array",
-            "prefixItems": [
-              { "type": "integer", "minimum": 1 },
-              { "type": "string", "pattern": "^0x[0-9a-fA-F]{40}$" },
-              { "type": "string", "pattern": "^0x[0-9a-fA-F]{8}$" }
-            ],
-            "items": false,
-            "minItems": 3,
-            "maxItems": 3
-          }
-        }
-      }
-    },
-    "approvals": {
-      "type": "object",
-      "required": ["quorum"],
-      "properties": {
-        "quorum": { "type": "integer", "minimum": 2 },
-        "timelock_hours": { "type": "integer", "minimum": 0 },
-        "policy_edit_timelock_hours": { "type": "integer", "minimum": 0 }
-      }
-    },
-    "controls": {
-      "type": "object",
-      "properties": {
-        "pause": { "type": "object", "properties": { "enabled": { "type": "boolean" } } }
-      }
-    },
-    "intent_filters": {
-      "type": "object",
-      "properties": {
-        "max_slippage_bps": { "type": "integer", "minimum": 0, "maximum": 10000 },
-        "max_price_dev_bps": { "type": "integer", "minimum": 0, "maximum": 10000 }
-      }
-    }
-  }
-};
-
-const sampleGoodInline = {
-  "meta": { "denomination": "BASE_USDC", "logging": true },
-  "caps": { "max_outflow_h1": 100, "max_outflow_d1": 500, "call_rate_cap": "60/hour", "anomaly_block": { "enabled": true } },
-  "calls": { "allowlist": [[8453, "0x0000000000000000000000000000000000000001", "0xa9059cbb"], [8453, "0x0000000000000000000000000000000000000002", "0x095ea7b3"]] },
-  "approvals": { "quorum": 2, "timelock_hours": 24 },
-  "controls": { "pause": { "enabled": true } }
-};
-
 async function loadSchema() {
+  // Prefer local schema copy under docs/ to avoid cross-origin/file URL issues
   try {
-    const res = await fetch('../schema.json', { cache: 'no-store' });
+    const res = await fetch('./schema.json', { cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     return await res.json();
   } catch (e) {
-    console.warn('Falling back to inline schema (fetch failed):', e);
-    return inlineSchema;
+    throw new Error('Failed to load schema.json. Tip: run a local server (e.g., `npx http-server docs/`) or enable GitHub Pages. ' + String(e));
   }
 }
 
@@ -146,15 +39,9 @@ function setSample(el, sample) {
 }
 
 async function loadSample(name) {
-  try {
-    const res = await fetch(`../samples/${name}`, { cache: 'no-store' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    return await res.json();
-  } catch (e) {
-    console.warn('Sample fetch failed; using inline sample where possible:', e);
-    if (name === 'policy.good.json') return sampleGoodInline;
-    throw e;
-  }
+  const res = await fetch(`../samples/${name}`, { cache: 'no-store' });
+  if (!res.ok) throw new Error('Failed to load sample ' + name);
+  return res.json();
 }
 
 function download(filename, text) {
@@ -179,7 +66,7 @@ function download(filename, text) {
       const s = await loadSample('policy.good.json');
       setSample(policyInput, s);
     } catch (e) {
-      reportPre.textContent = 'Failed to load sample.good: ' + String(e);
+      reportPre.textContent = 'Failed to load sample: policy.good.json — ' + String(e);
     }
   });
 
@@ -189,7 +76,7 @@ function download(filename, text) {
       const s = await loadSample('policy.full.preview.json');
       setSample(policyInput, s);
     } catch (e) {
-      reportPre.textContent = 'Failed to load sample.full.preview: ' + String(e) + '\nTip: run a local server (e.g., `npx http-server docs/`) or enable GitHub Pages.';
+      reportPre.textContent = 'Failed to load sample: policy.full.preview.json — ' + String(e);
     }
   });
 
@@ -202,7 +89,7 @@ function download(filename, text) {
       downloadBtn.disabled = !out;
       downloadBtn.onclick = () => download('policy.report.json', out);
     } catch (e) {
-      reportPre.textContent = 'Validation failed: ' + String(e) + '\nTip: open via a local server or GitHub Pages.';
+      reportPre.textContent = 'Validation failed: ' + String(e);
       downloadBtn.disabled = true;
     }
   });
