@@ -1,4 +1,4 @@
-## Agent Treasury Policy Linter — v0.1 WIP
+## Agent Treasury Policy Linter — v0.2 (WIP)
 
 [![Policy Lint](https://github.com/Amara-ops/agent-guardrails-policy-linter/actions/workflows/policy-lint.yml/badge.svg)](https://github.com/Amara-ops/agent-guardrails-policy-linter/actions/workflows/policy-lint.yml)
 [![Composite Action CI](https://github.com/Amara-ops/agent-guardrails-policy-linter/actions/workflows/policy-linter-action.yml/badge.svg)](https://github.com/Amara-ops/agent-guardrails-policy-linter/actions/workflows/policy-linter-action.yml)
@@ -11,18 +11,15 @@ Teams ship agent treasuries with missing/weak guardrails. Misconfigurations (no 
 ## Solution
 OSS linter that enforces a pragmatic baseline. Includes JSON Schema (2020-12), custom rules, samples, Jest tests, and a CI Action. Reduces policy risk for agent projects; aligns with programmable wallet policies. Encourages selector+chainId allowlists and sane caps.
 
-## What’s new (v0.1 WIP)
-- Guardrail Cookbook (recipes + snippets): GUARDRAIL_COOKBOOK.md
-- Rules roadmap with new warnings: rules.md (v0.1 additions marked)
-- New optional fields supported (warnings-first):
-  - calls.denylist
-  - approvals.policy_edit_timelock_hours
-  - intent_filters.{max_slippage_bps,max_price_dev_bps}
-  - caps.per_function {selector: "N/hour"}
-  - caps.per_target_d1 {address: number}
-- SARIF export: --sarif out.sarif [--artifact policy.json] to integrate with GitHub Code Scanning alerts
-- Samples: minimal (good/bad/swap/approval/escalation) + full.preview.json (uses optional fields)
-- Planned: minimal web UI, multi-chain denominations, anomaly heuristics tune-up
+## What’s new (v0.2 WIP)
+- Web UI (client-only) for quick checks: paste JSON → report (GitHub Pages). No data leaves your browser.
+- SARIF export (v0.1) documented with Code Scanning workflow and --artifact explainer.
+- Optional action inputs: sarif and artifact (composite + standalone actions) without breaking defaults.
+- Planned (deferred to v0.3): multi-chain denominations/units validation.
+
+## Web UI
+- Open docs/index.html on GitHub Pages for this repo (or locally). It uses the same schema (schema.json) for structural checks.
+- Note: The web UI approximates CLI output; use the CLI/Action in CI for production gating.
 
 ## Scope v0
 - Input: policy.json (keys: meta, caps, calls, approvals, controls).
@@ -93,18 +90,15 @@ GitHub Code Scanning upload example
     sarif_file: policy.sarif
 ```
 
-## Reports (generated)
-- report.good.json
-- report.bad.json
-- report.full.json (+ report.full.sarif)
-
-## CI example files
-- .github/workflows/policy-lint.yml
-- .github/workflows/policy-linter-action.yml
+## Web UI development
+- Files in docs/: index.html, style.css, app.js (imports Ajv via CDN). No build needed.
+- Local preview: any static server (e.g., npx http-server docs/).
+- GitHub Pages: Settings → Pages → deploy from main /docs.
 
 ## Roadmap
 - v0 complete: TS CLI + schema (2020-12 Ajv) + rules + Jest tests + sample reports + CI example + composite Action.
-- v0.1 WIP: Cookbook + rule warnings; optional fields (denylist, policy-edit timelock, intent filters, per-function/per-target caps); SARIF export.
-- v0.2: Minimal web UI; multi-chain denominations; bundle single-file CLI for Action usage.
+- v0.1: Educational warnings; optional fields (denylist, policy-edit timelock, intent filters, per-function/per-target caps); SARIF export + docs.
+- v0.2: Minimal web UI (client-only, GH Pages); polish docs; keep backward compatibility.
+- v0.3: Multi-chain denominations/units validation; minimal runtime adapters.
 
 License: MIT

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agent Treasury Policy Linter (Web)</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header>
+    <h1>Agent Treasury Policy Linter</h1>
+    <p>Quick check for your policy.json in the browser. For authoritative results, run the CLI or GitHub Action.</p>
+    <nav>
+      <a href="https://github.com/Amara-ops/agent-guardrails-policy-linter">Repo</a>
+      ·
+      <a href="https://github.com/Amara-ops/policy-linter-action">GitHub Action</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="input">
+      <h2>Paste policy.json</h2>
+      <textarea id="policyInput" placeholder="Paste your policy JSON here..."></textarea>
+      <div class="controls">
+        <button id="sampleGood">Load sample: good</button>
+        <button id="sampleFull">Load sample: full preview</button>
+        <button id="validateBtn">Validate</button>
+        <button id="downloadBtn" disabled>Download report.json</button>
+      </div>
+      <div class="hint">Schema is loaded from this repo (../schema.json). This UI runs entirely in your browser.</div>
+    </section>
+
+    <section class="output">
+      <h2>Report</h2>
+      <pre id="report"></pre>
+    </section>
+  </main>
+
+  <footer>
+    <small>Disclaimer: This web UI approximates the CLI output. Use the CLI/Action in CI for production policy checks. No data leaves your browser.</small>
+  </footer>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
