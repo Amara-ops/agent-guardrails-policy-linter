@@ -18,7 +18,7 @@ OSS linter that enforces a pragmatic baseline. Includes JSON Schema (2020-12), c
 - Planned (deferred to v0.3): multi-chain denominations/units validation.
 
 ## Web UI
-- Open docs/index.html on GitHub Pages for this repo (or locally). It uses the same schema (schema.json) for structural checks.
+- Open docs/index.html on GitHub Pages for this repo. It uses the same schema (schema.json) for structural checks.
 - Note: The web UI approximates CLI output; use the CLI/Action in CI for production gating.
 
 ## Scope v0
@@ -89,11 +89,6 @@ GitHub Code Scanning upload example
   with:
     sarif_file: policy.sarif
 ```
-
-## Web UI development
-- Files in docs/: index.html, style.css, app.js (imports Ajv via CDN). No build needed.
-- Local preview: any static server (e.g., npx http-server docs/).
-- GitHub Pages: Settings → Pages → deploy from main /docs.
 
 ## Roadmap
 - v0 complete: TS CLI + schema (2020-12 Ajv) + rules + Jest tests + sample reports + CI example + composite Action.
