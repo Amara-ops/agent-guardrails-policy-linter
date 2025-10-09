@@ -1,14 +1,16 @@
 import Ajv from 'https://cdn.jsdelivr.net/npm/ajv@8.12.0/dist/ajv2020.min.js';
 
+// Fetch schema and samples from the canonical repo (no duplication inside docs/)
+const RAW_BASE = 'https://raw.githubusercontent.com/Amara-ops/agent-guardrails-policy-linter/main/';
+
+async function fetchJSON(path) {
+  const res = await fetch(RAW_BASE + path, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${path}`);
+  return res.json();
+}
+
 async function loadSchema() {
-  // Prefer local schema copy under docs/ to avoid cross-origin/file URL issues
-  try {
-    const res = await fetch('./schema.json', { cache: 'no-store' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    return await res.json();
-  } catch (e) {
-    throw new Error('Failed to load schema.json. Tip: run a local server (e.g., `npx http-server docs/`) or enable GitHub Pages. ' + String(e));
-  }
+  return fetchJSON('schema.json');
 }
 
 function normalizeReport(errors) {
@@ -39,9 +41,7 @@ function setSample(el, sample) {
 }
 
 async function loadSample(name) {
-  const res = await fetch(`../samples/${name}`, { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to load sample ' + name);
-  return res.json();
+  return fetchJSON('samples/' + name);
 }
 
 function download(filename, text) {
