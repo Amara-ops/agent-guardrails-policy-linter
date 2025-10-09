@@ -5,28 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Agent Treasury Policy Linter (Web)</title>
   <link rel="stylesheet" href="./style.css" />
-  <!-- Dynamic loader: try multiple CDNs for Ajv UMD to avoid single-CDN blocks -->
-  <script>
-    (function(){
-      const urls = [
-        'https://cdn.jsdelivr.net/npm/ajv@8.12.0/dist/ajv2020.min.js',
-        'https://unpkg.com/ajv@8.12.0/dist/ajv2020.min.js'
-      ];
-      function tryLoad(i){
-        if (i >= urls.length) { console.warn('Failed to load Ajv from CDNs'); return; }
-        const s = document.createElement('script');
-        s.src = urls[i]; s.async = true; s.crossOrigin = 'anonymous';
-        s.onload = function(){
-          const Ajv = window.Ajv || window.ajv || window.Ajv2020 || window.ajv2020;
-          if (!Ajv) { console.warn('Ajv UMD missing after load:', urls[i]); tryLoad(i+1); return; }
-          window.Ajv = Ajv; console.log('Ajv loaded from', urls[i]);
-        };
-        s.onerror = function(){ console.warn('CDN load failed:', urls[i]); tryLoad(i+1); };
-        document.head.appendChild(s);
-      }
-      tryLoad(0);
-    })();
-  </script>
 </head>
 <body>
   <header>
@@ -49,7 +27,7 @@
         <button id="validateBtn">Validate</button>
         <button id="downloadBtn" disabled>Download report.json</button>
       </div>
-      <div class="hint">If validation fails with "Ajv UMD not loaded", your browser or network blocked the CDN. Try the other button actions, disable Shields/extension blocking for this page, or serve via GitHub Pages.</div>
+      <div class="hint">Hosted on GitHub Pages. Schema and samples fetched from the repo. No data leaves your browser.</div>
     </section>
 
     <section class="output">
@@ -59,10 +37,9 @@
   </main>
 
   <footer>
-    <small>Disclaimer: This web UI approximates the CLI output. Use the CLI/Action in CI for production policy checks. No data leaves your browser.</small>
+    <small>Disclaimer: This web UI approximates the CLI output. Use the CLI/Action in CI for production policy checks.</small>
   </footer>
 
-  <!-- Classic script to avoid module MIME/CORS issues with file:// or simple servers -->
   <script src="./app.js"></script>
 </body>
 </html>

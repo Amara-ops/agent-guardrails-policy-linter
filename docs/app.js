@@ -1,45 +1,49 @@
-// App script (classic, non-module). Requires Ajv UMD loaded first.
-// Tries same-origin schema/samples first (works on GitHub Pages or when serving repo root),
-// then falls back to raw.githubusercontent.com.
-
+// Classic script; dynamically loads Ajv UMD from CDN (no modules). Target: GitHub Pages.
 (function(){
   const RAW_BASE = 'https://raw.githubusercontent.com/Amara-ops/agent-guardrails-policy-linter/main/';
-
-  function getAjvCtor(){
-    const AjvCtor = window.Ajv || window.ajv || window.Ajv2020 || window.ajv2020;
-    if (!AjvCtor) {
-      throw new Error('Ajv UMD not loaded');
-    }
-    return AjvCtor;
-  }
+  const AJV_CDNS = [
+    'https://cdn.jsdelivr.net/npm/ajv@8/dist/ajv.min.js',
+    'https://unpkg.com/ajv@8/dist/ajv.min.js'
+  ];
+  let ajvLoadPromise = null;
 
   function byId(id){ return document.getElementById(id); }
 
-  async function fetchJSONFallback(paths){
-    let lastErr;
-    for (const path of paths){
-      try {
-        const res = await fetch(path, { cache: 'no-store' });
-        if (!res.ok) throw new Error('HTTP ' + res.status + ' for ' + path);
-        const text = await res.text();
-        return JSON.parse(text);
-      } catch (e){ lastErr = e; }
+  function loadScript(src){
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = src; s.async = true; s.crossOrigin = 'anonymous';
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error('Failed to load ' + src));
+      document.head.appendChild(s);
+    });
+  }
+
+  async function ensureAjvLoaded(){
+    if ((window.Ajv || window.ajv)) {
+      window.Ajv = window.Ajv || window.ajv; // normalize
+      return window.Ajv;
     }
-    throw lastErr || new Error('Failed to fetch any JSON path');
+    if (!ajvLoadPromise) {
+      ajvLoadPromise = (async () => {
+        let lastErr;
+        for (const url of AJV_CDNS){
+          try { await loadScript(url); } catch (e){ lastErr = e; continue; }
+          const Ajv = window.Ajv || window.ajv;
+          if (Ajv) { window.Ajv = Ajv; return Ajv; }
+        }
+        throw lastErr || new Error('Ajv UMD not available');
+      })();
+    }
+    return ajvLoadPromise;
   }
 
-  function schemaPaths(){
-    return [
-      new URL('../schema.json', location.href).toString(),
-      RAW_BASE + 'schema.json'
-    ];
-  }
-
-  function samplePaths(name){
-    return [
-      new URL('../samples/' + name, location.href).toString(),
-      RAW_BASE + 'samples/' + name
-    ];
+  async function fetchJSON(path){
+    const res = await fetch(path, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status + ' for ' + path);
+    // Some static hosts set text/plain; parse manually
+    const text = await res.text();
+    return JSON.parse(text);
   }
 
   function normalizeReport(errors){
@@ -58,19 +62,19 @@
     let policy;
     try { policy = JSON.parse(jsonText); }
     catch (e) { return { ok: false, parseError: String(e) }; }
-    const schema = await fetchJSONFallback(schemaPaths());
-    const AjvCtor = getAjvCtor();
+    const schema = await fetchJSON(RAW_BASE + 'schema.json');
+    const AjvCtor = await ensureAjvLoaded();
     const ajv = new AjvCtor({ strict: false, allErrors: true });
     const validate = ajv.compile(schema);
     validate(policy);
     return normalizeReport(validate.errors);
   }
 
-  function setSample(el, sample){ el.value = JSON.stringify(sample, null, 2); }
-
   async function loadSample(name){
-    return fetchJSONFallback(samplePaths(name));
+    return fetchJSON(RAW_BASE + 'samples/' + name);
   }
+
+  function setSample(el, sample){ el.value = JSON.stringify(sample, null, 2); }
 
   function download(filename, text){
     const blob = new Blob([text], { type: 'application/json' });
@@ -80,7 +84,6 @@
     setTimeout(() => URL.revokeObjectURL(url), 0);
   }
 
-  // Wire UI once DOM ready
   document.addEventListener('DOMContentLoaded', function(){
     const policyInput = byId('policyInput');
     const reportPre = byId('report');
@@ -91,22 +94,14 @@
 
     sampleGoodBtn.addEventListener('click', async () => {
       reportPre.textContent = '';
-      try {
-        const s = await loadSample('policy.good.json');
-        setSample(policyInput, s);
-      } catch (e) {
-        reportPre.textContent = 'Failed to load sample: policy.good.json — ' + String(e);
-      }
+      try { setSample(policyInput, await loadSample('policy.good.json')); }
+      catch (e) { reportPre.textContent = 'Failed to load sample: policy.good.json — ' + String(e); }
     });
 
     sampleFullBtn.addEventListener('click', async () => {
       reportPre.textContent = '';
-      try {
-        const s = await loadSample('policy.full.preview.json');
-        setSample(policyInput, s);
-      } catch (e) {
-        reportPre.textContent = 'Failed to load sample: policy.full.preview.json — ' + String(e);
-      }
+      try { setSample(policyInput, await loadSample('policy.full.preview.json')); }
+      catch (e) { reportPre.textContent = 'Failed to load sample: policy.full.preview.json — ' + String(e); }
     });
 
     validateBtn.addEventListener('click', async () => {
@@ -122,5 +117,8 @@
         downloadBtn.disabled = true;
       }
     });
+
+    // Preload Ajv in the background to reduce first-validate latency
+    ensureAjvLoaded().catch(() => {/* noop; will surface on validate */});
   });
 })();
