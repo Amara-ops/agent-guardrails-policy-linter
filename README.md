@@ -5,16 +5,16 @@
 
 A TypeScript CLI + GitHub Action that validates agent-treasury policy JSON against a schema and safety rules (caps, selector+chainId allowlists, timelock, quorum, pause, logging). Outputs machine-readable actionable JSON reports with errors/warnings/suggestions to help teams tighten policy before deployment.
 
-## Runtime enforcement (companion project)
-Use the Policy Runtime Engine at execution time to enforce allow/deny decisions and log usage. The linter helps you ship a safe policy; the runtime enforces it during operations.
-- Policy Runtime TS: https://github.com/Amara-ops/policy-runtime-ts
-- Policy Linter Action (standalone, Marketplace-friendly): https://github.com/Amara-ops/policy-linter-action
-
 ## Problem
 Teams ship agent treasuries with missing/weak guardrails. Misconfigurations (no selector allowlists, high spend caps, no timelock) increase exploit and runaway-spend risk.
 
 ## Solution
 OSS linter that enforces a pragmatic baseline. Includes JSON Schema (2020-12), custom rules, samples, Jest tests, and a CI Action. Reduces policy risk for agent projects; aligns with programmable wallet policies. Encourages selector+chainId allowlists and sane caps.
+
+## Runtime enforcement (companion project)
+Use the Policy Runtime Engine at execution time to enforce allow/deny decisions and log usage. The linter helps you ship a safe policy; the runtime enforces it during operations.
+- Policy Runtime TS: https://github.com/Amara-ops/policy-runtime-ts
+- Policy Linter Action (standalone, Marketplace-friendly): https://github.com/Amara-ops/policy-linter-action
 
 ## What’s new (v0.2 WIP)
 - Web UI (client-only) for quick checks: paste JSON → report (GitHub Pages). No data leaves your browser.
