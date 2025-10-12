@@ -13,7 +13,7 @@ OSS linter that enforces a pragmatic baseline. Includes JSON Schema (2020-12), c
 
 ## Runtime enforcement (companion project)
 Use the Policy Runtime Engine at execution time to enforce allow/deny decisions and log usage. The linter helps you ship a safe policy; the runtime enforces it during operations.
-- Policy Runtime TS: https://github.com/Amara-ops/policy-runtime-ts (Base USDC: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 on chainId 8453)
+- Policy Runtime TS: https://github.com/Amara-ops/policy-runtime-ts
 - Policy Linter Action (standalone, Marketplace-friendly): https://github.com/Amara-ops/policy-linter-action
 
 ## What’s new (v0.2 WIP)
