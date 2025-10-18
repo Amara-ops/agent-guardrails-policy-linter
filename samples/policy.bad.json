@@ -1,7 +1,18 @@
 {
-  "meta": { "denomination": "ETH", "logging": false },
-  "caps": { "max_outflow_h1": 1000, "max_outflow_d1": 500, "call_rate_cap": "foo/hour" },
-  "calls": { "allowlist": [] },
-  "approvals": { "quorum": 1 },
-  "controls": { "pause": { "enabled": false } }
+  "allowlist": [],
+  "caps": {
+    "max_outflow_h1": "0",
+    "max_outflow_d1": { "BASE_USDC": "-1" },
+    "max_per_function_h1": 0,
+    "per_target": { "h1": { "not-an-address": "100" } }
+  },
+  "pause": "sometimes",
+  "meta": {
+    "denominations": {
+      "BASE_USDC": { "decimals": -6, "address": "0xNOTHEX" }
+    },
+    "defaultDenomination": "NON_EXISTENT",
+    "nonce_max_gap": -1,
+    "slippage_max_bps": 20000
+  }
 }

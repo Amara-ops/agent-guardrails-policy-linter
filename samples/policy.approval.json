@@ -1,7 +1,20 @@
 {
-  "meta": { "denomination": "BASE_USDC", "logging": true },
-  "caps": { "max_outflow_h1": 25, "max_outflow_d1": 100, "call_rate_cap": "30/hour" },
-  "calls": { "allowlist": [ [8453, "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", "0xa9059cbb"] ] },
-  "approvals": { "quorum": 2, "timelock_hours": 24 },
-  "controls": { "pause": { "enabled": true } }
+  "allowlist": [
+    { "chainId": 8453, "to": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913", "selector": "0xa9059cbb" }
+  ],
+  "caps": {
+    "max_outflow_h1": { "BASE_USDC": "25000000" },
+    "max_outflow_d1": { "BASE_USDC": "100000000" },
+    "max_per_function_h1": 30
+  },
+  "pause": false,
+  "meta": {
+    "schemaVersion": "v0.3",
+    "denominations": {
+      "BASE_USDC": { "decimals": 6, "chainId": 8453, "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913" }
+    },
+    "defaultDenomination": "BASE_USDC",
+    "nonce_max_gap": 1,
+    "slippage_max_bps": 30
+  }
 }
