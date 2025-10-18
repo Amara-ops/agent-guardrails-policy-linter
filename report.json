@@ -1,0 +1,96 @@
+{
+  "ok": false,
+  "errors": [
+    {
+      "code": "SCHEMA",
+      "msg": " must have required property 'calls'"
+    },
+    {
+      "code": "SCHEMA",
+      "msg": " must have required property 'approvals'"
+    },
+    {
+      "code": "SCHEMA",
+      "msg": " must have required property 'controls'"
+    },
+    {
+      "code": "SCHEMA",
+      "msg": "/meta must have required property 'denomination'"
+    },
+    {
+      "code": "SCHEMA",
+      "msg": "/meta must have required property 'logging'"
+    },
+    {
+      "code": "SCHEMA",
+      "msg": "/caps must have required property 'call_rate_cap'"
+    },
+    {
+      "code": "SCHEMA",
+      "msg": "/caps/max_outflow_h1 must be number"
+    },
+    {
+      "code": "SCHEMA",
+      "msg": "/caps/max_outflow_d1 must be number"
+    },
+    {
+      "code": "LOGGING_DISABLED",
+      "msg": "meta.logging must be true",
+      "path": "meta.logging"
+    },
+    {
+      "code": "DENOMINATION_INVALID",
+      "msg": "meta.denomination must be BASE_USDC or ETH",
+      "path": "meta.denomination"
+    },
+    {
+      "code": "CAPS_H1_NONPOSITIVE",
+      "msg": "caps.max_outflow_h1 must be > 0",
+      "path": "caps.max_outflow_h1"
+    },
+    {
+      "code": "CAPS_D1_NONPOSITIVE",
+      "msg": "caps.max_outflow_d1 must be > 0",
+      "path": "caps.max_outflow_d1"
+    },
+    {
+      "code": "RATE_CAP_FORMAT",
+      "msg": "caps.call_rate_cap must be \"N/hour\"",
+      "path": "caps.call_rate_cap"
+    },
+    {
+      "code": "ALLOWLIST_EMPTY",
+      "msg": "calls.allowlist must include at least one [chainId, addr, selector] triple",
+      "path": "calls.allowlist"
+    },
+    {
+      "code": "QUORUM_TOO_LOW",
+      "msg": "approvals.quorum must be >= 2",
+      "path": "approvals.quorum"
+    }
+  ],
+  "warnings": [
+    {
+      "code": "ANOMALY_BLOCK_DISABLED",
+      "msg": "Enable caps.anomaly_block.enabled",
+      "path": "caps.anomaly_block.enabled"
+    },
+    {
+      "code": "TIMELOCK_MISSING_OR_LOW",
+      "msg": "approvals.timelock_hours should be >= 24",
+      "path": "approvals.timelock_hours"
+    },
+    {
+      "code": "PAUSE_DISABLED",
+      "msg": "controls.pause.enabled should be true",
+      "path": "controls.pause.enabled"
+    }
+  ],
+  "suggestions": [
+    {
+      "code": "SUGGEST_DENOMINATION",
+      "msg": "Use BASE_USDC if operating primarily on Base",
+      "path": "meta.denomination"
+    }
+  ]
+}

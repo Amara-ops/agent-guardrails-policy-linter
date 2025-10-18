@@ -1,23 +1,28 @@
 {
-  "meta": { "denomination": "BASE_USDC", "logging": true },
+  "allowlist": [
+    { "chainId": 8453, "to": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913", "selector": "0xa9059cbb" }
+  ],
   "caps": {
-    "max_outflow_h1": 100,
-    "max_outflow_d1": 500,
-    "call_rate_cap": "60/hour",
-    "anomaly_block": { "enabled": true },
-    "per_function": { "0x04e45aaf": "120/hour", "0xa9059cbb": "240/hour" },
-    "per_target_d1": { "0xE592427A0AEce92De3Edee1F18E0157C05861564": 300 }
+    "max_outflow_h1": { "BASE_USDC": "5000000" },
+    "max_outflow_d1": { "BASE_USDC": "20000000" },
+    "max_per_function_h1": 10,
+    "per_target": {
+      "h1": {
+        "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913|0xa9059cbb": { "BASE_USDC": "2000000" }
+      },
+      "d1": {
+        "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913": { "BASE_USDC": "10000000" }
+      }
+    }
   },
-  "calls": {
-    "allowlist": [
-      [8453, "0xE592427A0AEce92De3Edee1F18E0157C05861564", "0x04e45aaf"],
-      [8453, "0x833589fCD6edB6E08f4c7c32D4f71B54B5DCaB2D", "0xa9059cbb"]
-    ],
-    "denylist": [
-      [8453, "0xE592427A0AEce92De3Edee1F18E0157C05861564", "0x5ae401dc"]
-    ]
-  },
-  "approvals": { "quorum": 2, "timelock_hours": 24, "policy_edit_timelock_hours": 24 },
-  "controls": { "pause": { "enabled": true } },
-  "intent_filters": { "max_slippage_bps": 100, "max_price_dev_bps": 200 }
+  "pause": false,
+  "meta": {
+    "schemaVersion": "v0.3",
+    "denominations": {
+      "BASE_USDC": { "decimals": 6, "chainId": 8453, "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913" }
+    },
+    "defaultDenomination": "BASE_USDC",
+    "nonce_max_gap": 1,
+    "slippage_max_bps": 50
+  }
 }
