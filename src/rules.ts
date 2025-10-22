@@ -16,22 +16,39 @@ export function checkRules(doc: any): { errors: Finding[]; warnings: Finding[]; 
     }
   }
 
-  // Caps sanity
+  // Caps sanity (v0.3.3 allows human strings in per-denomination maps)
   const h1 = doc?.caps?.max_outflow_h1;
   const d1 = doc?.caps?.max_outflow_d1;
   const perFn = doc?.caps?.max_per_function_h1;
-  const toStr = (v: any) => typeof v === 'string' ? v : undefined;
+  function toBig(v: any): bigint | undefined {
+    if (typeof v === 'string') {
+      if (!/^\d+(?:\.\d+)?$/.test(v)) return undefined;
+      // approximate by removing the dot for min comparison (only relative order matters)
+      return BigInt(v.replace('\n','').replace('.',''));
+    }
+    return undefined;
+  }
   function capMin(v: any): bigint | undefined {
-    if (typeof v === 'string') return BigInt(v);
+    if (typeof v === 'string') return /^\d+$/.test(v) ? BigInt(v) : undefined;
     if (v && typeof v === 'object') {
       let min: bigint | undefined;
-      for (const k in v) { const x = BigInt(v[k]); min = min === undefined ? x : (x < min ? x : min); }
+      for (const k in v) {
+        const x = toBig(v[k]);
+        if (x === undefined) return undefined;
+        min = min === undefined ? x : (x < min ? x : min);
+      }
       return min;
     }
     return undefined;
   }
   const h1min = capMin(h1);
   const d1min = capMin(d1);
+  if (h1 !== undefined && h1min === undefined) {
+    errors.push({ code: 'H1_CAP_INVALID', msg: 'caps.max_outflow_h1 must be a base-unit string or per-denom map of numeric strings', path: 'caps.max_outflow_h1' });
+  }
+  if (d1 !== undefined && d1min === undefined) {
+    errors.push({ code: 'D1_CAP_INVALID', msg: 'caps.max_outflow_d1 must be a base-unit string or per-denom map of numeric strings', path: 'caps.max_outflow_d1' });
+  }
   if (h1min === undefined) warnings.push({ code: 'H1_CAP_MISSING', msg: 'caps.max_outflow_h1 not set (no global rate limit)', path: 'caps.max_outflow_h1' });
   if (d1min === undefined) warnings.push({ code: 'D1_CAP_MISSING', msg: 'caps.max_outflow_d1 not set (no daily limit)', path: 'caps.max_outflow_d1' });
   if (h1min !== undefined && d1min !== undefined && h1min > d1min) {
@@ -77,6 +94,13 @@ export function checkRules(doc: any): { errors: Finding[]; warnings: Finding[]; 
   // Suggestions
   if (!doc?.meta?.denominations?.BASE_USDC) {
     suggestions.push({ code: 'SUGGEST_ADD_BASE_USDC', msg: 'Consider defining BASE_USDC in meta.denominations for clarity on decimals/address', path: 'meta.denominations' });
+  }
+  // Prefer per-denom maps over top-level base-unit strings
+  if (typeof h1 === 'string') {
+    warnings.push({ code: 'H1_TOPLEVEL_STRING', msg: 'Prefer per-denomination maps (allow human caps); top-level string is base-units only', path: 'caps.max_outflow_h1' });
+  }
+  if (typeof d1 === 'string') {
+    warnings.push({ code: 'D1_TOPLEVEL_STRING', msg: 'Prefer per-denomination maps (allow human caps); top-level string is base-units only', path: 'caps.max_outflow_d1' });
   }
 
   return { errors, warnings, suggestions };
