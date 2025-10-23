@@ -77,8 +77,8 @@ function wireUI() {
 
   sampleFullBtn.addEventListener('click', async () => {
     reportPre.textContent = '';
-    try { setSample(policyInput, await loadSample('policy.full.preview.json')); }
-    catch (e) { reportPre.textContent = 'Failed to load sample: policy.full.preview.json — ' + String(e); }
+    try { setSample(policyInput, await loadSample('policy.full.json')); }
+    catch (e) { reportPre.textContent = 'Failed to load sample: policy.full.json — ' + String(e); }
   });
 
   validateBtn.addEventListener('click', async () => {
