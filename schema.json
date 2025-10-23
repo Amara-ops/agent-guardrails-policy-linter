@@ -46,6 +46,8 @@
           ]
         },
         "max_per_function_h1": { "type": "integer", "minimum": 1 },
+        "max_calls_per_function_h1": { "type": "integer", "minimum": 1 },
+        "max_calls_per_function_d1": { "type": "integer", "minimum": 1 },
         "per_target": {
           "type": "object",
           "properties": {

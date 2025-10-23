@@ -19,11 +19,11 @@ export function checkRules(doc: any): { errors: Finding[]; warnings: Finding[]; 
   // Caps sanity (v0.3.3 allows human strings in per-denomination maps)
   const h1 = doc?.caps?.max_outflow_h1;
   const d1 = doc?.caps?.max_outflow_d1;
-  const perFn = doc?.caps?.max_per_function_h1;
+  const perFnH1 = (doc?.caps?.max_calls_per_function_h1 ?? doc?.caps?.max_per_function_h1);
+  const perFnD1 = doc?.caps?.max_calls_per_function_d1;
   function toBig(v: any): bigint | undefined {
     if (typeof v === 'string') {
       if (!/^\d+(?:\.\d+)?$/.test(v)) return undefined;
-      // approximate by removing the dot for min comparison (only relative order matters)
       return BigInt(v.replace('\n','').replace('.',''));
     }
     return undefined;
@@ -54,8 +54,11 @@ export function checkRules(doc: any): { errors: Finding[]; warnings: Finding[]; 
   if (h1min !== undefined && d1min !== undefined && h1min > d1min) {
     warnings.push({ code: 'H1_GT_D1', msg: 'Hourly outflow > daily outflow; consider tightening', path: 'caps' });
   }
-  if (perFn !== undefined && (!(Number.isInteger(perFn)) || perFn <= 0)) {
-    errors.push({ code: 'PER_FN_CAP_INVALID', msg: 'caps.max_per_function_h1 must be a positive integer if set', path: 'caps.max_per_function_h1' });
+  if (perFnH1 !== undefined && (!(Number.isInteger(perFnH1)) || perFnH1 <= 0)) {
+    errors.push({ code: 'PER_FN_CAP_INVALID', msg: 'caps.max_calls_per_function_h1 (or alias max_per_function_h1) must be a positive integer if set', path: 'caps.max_calls_per_function_h1' });
+  }
+  if (perFnD1 !== undefined && (!(Number.isInteger(perFnD1)) || perFnD1 <= 0)) {
+    errors.push({ code: 'PER_FN_D1_CAP_INVALID', msg: 'caps.max_calls_per_function_d1 must be a positive integer if set', path: 'caps.max_calls_per_function_d1' });
   }
 
   // Per-target caps keys
