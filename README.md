@@ -8,11 +8,11 @@ Human-friendly CLI + GitHub Action to validate agent-treasury policy JSON. This 
 What it checks (in plain words)
 - Structure: allowlist entries have chainId, contract (to), and function selector; addresses/selectors must be lowercase hex.
 - Caps:
-  - Monetary caps can be written as per-denomination human strings (e.g., { "BASE_USDC": "100" }) or base-unit strings.
+  - Monetary caps should be written as per-denomination human strings (e.g., { "BASE_USDC": "100" }).
   - Per-target caps allow either contract-only keys or contract|selector keys.
   - Call caps per function selector: max_calls_per_function_h1 and max_calls_per_function_d1 (alias supported: max_per_function_h1 → max_calls_per_function_h1).
 - Meta: denominations registry for decimals; defaultDenomination; optional slippage and nonce-gap limits.
-- Guidance: warnings suggest clearer/safer patterns (e.g., prefer per-denomination maps over raw base-unit strings).
+- Guidance: warnings suggest clearer/safer patterns.
 
 Minimal valid policy (human caps)
 ```json
@@ -58,10 +58,12 @@ What the findings mean
 - suggestions: optional improvements
 
 Samples (v0.3.4)
-- samples/policy.human.good.json — human caps with per-target example and call caps
-- samples/policy.human.full.json — broader config including daily call cap
-- samples/policy.good.json — base-units legacy example
-- samples/policy.full.preview.json — broader config with per-target caps (base-units)
+- samples/policy.good.json — human caps with per-target example and call caps
+- samples/policy.full.json — broader config including daily call cap
+- samples/policy.approval.json — moderate caps
+- samples/policy.escalation.json — larger caps
+- samples/policy.swap.json — swap + per-target example
+- samples/policy.bad.json — intentionally invalid for demonstration
 
 Tips
 - Prefer per-denomination maps when writing monetary caps; the runtime converts human strings to base units using decimals.

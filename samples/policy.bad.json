@@ -1,10 +1,15 @@
 {
   "allowlist": [],
   "caps": {
-    "max_outflow_h1": "0",
+    "max_outflow_h1": { "BASE_USDC": "not-a-number" },
     "max_outflow_d1": { "BASE_USDC": "-1" },
-    "max_per_function_h1": 0,
-    "per_target": { "h1": { "not-an-address": "100" } }
+    "max_calls_per_function_h1": 0,
+    "max_calls_per_function_d1": -5,
+    "per_target": {
+      "h1": {
+        "not-an-address": { "BASE_USDC": "100" }
+      }
+    }
   },
   "pause": "sometimes",
   "meta": {
