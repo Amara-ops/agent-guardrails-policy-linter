@@ -1,12 +1,12 @@
-Samples for Policy Linter v0.3.4 (aligned with Policy Runtime v0.3.4)
+Samples updated for symbol-based denominations (v0.3.5)
 
-- policy.good.json — minimal, human caps with call caps
-- policy.full.json — broader config with per-target caps (all human amounts)
-- policy.approval.json — moderate caps pattern (human amounts)
-- policy.escalation.json — larger caps pattern (human amounts)
-- policy.swap.json — includes a swap selector and per-target cap (human amounts)
-- policy.bad.json — intentionally invalid values to demonstrate lint finding types
+- All caps now use token symbols (e.g., USDC) instead of chain-prefixed names (e.g., BASE_USDC).
+- meta.denominations is removed; decimals and token validation are read from a token registry JSON.
+- Each sample sets meta.tokens_registry_path to config/tokens.json for local development.
 
-Notes
-- Monetary caps use per-denomination human strings (e.g., { "BASE_USDC": "100" }). The runtime converts to base units using decimals.
-- Keep addresses/selectors lowercase hex. Use contract|selector keys for function-level per-target caps.
+Files:
+- policy.good.json
+- policy.approval.json
+- policy.escalation.json
+- policy.full.json
+- policy.swap.json

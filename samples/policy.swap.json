@@ -3,21 +3,18 @@
     { "chainId": 8453, "to": "0xe592427a0aece92de3edee1f18e0157c05861564", "selector": "0x04e45aaf" }
   ],
   "caps": {
-    "max_outflow_h1": { "BASE_USDC": "100000" },
-    "max_outflow_d1": { "BASE_USDC": "300000" },
+    "max_outflow_h1": { "USDC": "100000" },
+    "max_outflow_d1": { "USDC": "300000" },
     "max_calls_per_function_h1": 60,
     "max_calls_per_function_d1": 600,
     "per_target": {
-      "h1": { "0xe592427a0aece92de3edee1f18e0157c05861564|0x04e45aaf": { "BASE_USDC": "50000" } }
+      "h1": { "0xe592427a0aece92de3edee1f18e0157c05861564|0x04e45aaf": { "USDC": "50000" } }
     }
   },
   "pause": false,
   "meta": {
-    "schemaVersion": "v0.3.4",
-    "denominations": {
-      "BASE_USDC": { "decimals": 6, "chainId": 8453 }
-    },
-    "defaultDenomination": "BASE_USDC",
+    "schemaVersion": "v0.3.5",
+    "tokens_registry_path": "config/tokens.json",
     "nonce_max_gap": 1,
     "slippage_max_bps": 50
   }

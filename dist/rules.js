@@ -1,3 +1,4 @@
+import { loadRegistrySymbols } from './registry.js';
 export function checkRules(doc) {
     const errors = [];
     const warnings = [];
@@ -14,15 +15,30 @@ export function checkRules(doc) {
                 errors.push({ code: 'ALLOWLIST_ENTRY_INVALID', msg: `allowlist[${i}] must have chainId:int, to:0x40 lowercase, selector:0x8 lowercase`, path: `allowlist[${i}]` });
         }
     }
-    // Caps sanity (v0.3.3 allows human strings in per-denomination maps)
+    // Load registry symbols (case-insensitive)
+    const regSyms = loadRegistrySymbols(doc?.meta?.tokens_registry_path);
+    // Caps sanity (v0.3.x allows human strings in per-denomination maps)
     const h1 = doc?.caps?.max_outflow_h1;
     const d1 = doc?.caps?.max_outflow_d1;
-    const perFn = doc?.caps?.max_per_function_h1;
+    const perFnH1 = (doc?.caps?.max_calls_per_function_h1 ?? doc?.caps?.max_per_function_h1);
+    const perFnD1 = doc?.caps?.max_calls_per_function_d1;
+    // Validate per-denomination maps use symbols found in registry
+    function validateDenomMap(obj, path) {
+        if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+            for (const key of Object.keys(obj)) {
+                const sym = String(key).toUpperCase();
+                if (!regSyms.has(sym)) {
+                    warnings.push({ code: 'DENOM_UNKNOWN', msg: `${path} uses denomination '${key}' not found in registry symbols`, path });
+                }
+            }
+        }
+    }
+    validateDenomMap(h1, 'caps.max_outflow_h1');
+    validateDenomMap(d1, 'caps.max_outflow_d1');
     function toBig(v) {
         if (typeof v === 'string') {
             if (!/^\d+(?:\.\d+)?$/.test(v))
                 return undefined;
-            // approximate by removing the dot for min comparison (only relative order matters)
             return BigInt(v.replace('\n', '').replace('.', ''));
         }
         return undefined;
@@ -57,8 +73,11 @@ export function checkRules(doc) {
     if (h1min !== undefined && d1min !== undefined && h1min > d1min) {
         warnings.push({ code: 'H1_GT_D1', msg: 'Hourly outflow > daily outflow; consider tightening', path: 'caps' });
     }
-    if (perFn !== undefined && (!(Number.isInteger(perFn)) || perFn <= 0)) {
-        errors.push({ code: 'PER_FN_CAP_INVALID', msg: 'caps.max_per_function_h1 must be a positive integer if set', path: 'caps.max_per_function_h1' });
+    if (perFnH1 !== undefined && (!(Number.isInteger(perFnH1)) || perFnH1 <= 0)) {
+        errors.push({ code: 'PER_FN_CAP_INVALID', msg: 'caps.max_calls_per_function_h1 (or alias max_per_function_h1) must be a positive integer if set', path: 'caps.max_calls_per_function_h1' });
+    }
+    if (perFnD1 !== undefined && (!(Number.isInteger(perFnD1)) || perFnD1 <= 0)) {
+        errors.push({ code: 'PER_FN_D1_CAP_INVALID', msg: 'caps.max_calls_per_function_d1 must be a positive integer if set', path: 'caps.max_calls_per_function_d1' });
     }
     // Per-target caps keys
     for (const scope of ['h1', 'd1']) {
@@ -75,12 +94,11 @@ export function checkRules(doc) {
     const defaultDenom = doc?.meta?.defaultDenomination;
     const denoms = doc?.meta?.denominations;
     if (defaultDenom && !(denoms && typeof denoms[defaultDenom] === 'object')) {
-        errors.push({ code: 'DEFAULT_DENOM_UNKNOWN', msg: 'meta.defaultDenomination must exist in meta.denominations', path: 'meta.defaultDenomination' });
+        // Deprecated path; keep as warning instead of error
+        warnings.push({ code: 'DEFAULT_DENOM_UNKNOWN', msg: 'meta.defaultDenomination refers to meta.denominations which is deprecated; use registry', path: 'meta.defaultDenomination' });
     }
     if (denoms && typeof denoms === 'object') {
-        const d = denoms[defaultDenom || 'BASE_USDC'];
-        if (d && d.address && !/^0x[0-9a-f]{40}$/.test(d.address))
-            warnings.push({ code: 'DENOM_ADDRESS_FORMAT', msg: 'meta.denominations[...].address should be lowercase 0x40', path: 'meta.denominations.*.address' });
+        warnings.push({ code: 'DENOM_DEPRECATED', msg: 'meta.denominations is deprecated; decimals come from token registry', path: 'meta.denominations' });
     }
     // Intent filters
     const slip = doc?.meta?.slippage_max_bps;
@@ -92,15 +110,8 @@ export function checkRules(doc) {
         errors.push({ code: 'NONCE_MAX_GAP_INVALID', msg: 'meta.nonce_max_gap must be >= 0 integer', path: 'meta.nonce_max_gap' });
     }
     // Suggestions
-    if (!doc?.meta?.denominations?.BASE_USDC) {
-        suggestions.push({ code: 'SUGGEST_ADD_BASE_USDC', msg: 'Consider defining BASE_USDC in meta.denominations for clarity on decimals/address', path: 'meta.denominations' });
-    }
-    // Prefer per-denom maps over top-level base-unit strings
-    if (typeof h1 === 'string') {
-        warnings.push({ code: 'H1_TOPLEVEL_STRING', msg: 'Prefer per-denomination maps (allow human caps); top-level string is base-units only', path: 'caps.max_outflow_h1' });
-    }
-    if (typeof d1 === 'string') {
-        warnings.push({ code: 'D1_TOPLEVEL_STRING', msg: 'Prefer per-denomination maps (allow human caps); top-level string is base-units only', path: 'caps.max_outflow_d1' });
+    if (!doc?.caps?.max_outflow_h1 && !doc?.caps?.max_outflow_d1) {
+        suggestions.push({ code: 'SUGGEST_SET_OUTFLOW', msg: 'Consider setting max_outflow_h1/d1 caps per symbol' });
     }
     return { errors, warnings, suggestions };
 }
